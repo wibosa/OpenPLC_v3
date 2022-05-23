@@ -15,6 +15,7 @@ import ctypes
 
 import flask 
 import flask_login
+import importlib
 
 app = flask.Flask(__name__)
 app.secret_key = str(os.urandom(16))
@@ -43,35 +44,35 @@ def configure_runtime():
             for row in rows:
                 if (row[0] == "Modbus_port"):
                     if (row[1] != "disabled"):
-                        print("Enabling Modbus on port " + str(int(row[1])))
+                        print(("Enabling Modbus on port " + str(int(row[1]))))
                         openplc_runtime.start_modbus(int(row[1]))
                     else:
                         print("Disabling Modbus")
                         openplc_runtime.stop_modbus()
                 elif (row[0] == "Dnp3_port"):
                     if (row[1] != "disabled"):
-                        print("Enabling DNP3 on port " + str(int(row[1])))
+                        print(("Enabling DNP3 on port " + str(int(row[1]))))
                         openplc_runtime.start_dnp3(int(row[1]))
                     else:
                         print("Disabling DNP3")
                         openplc_runtime.stop_dnp3()
                 elif (row[0] == "Enip_port"):
                     if (row[1] != "disabled"):
-                        print("Enabling EtherNet/IP on port " + str(int(row[1])))
+                        print(("Enabling EtherNet/IP on port " + str(int(row[1]))))
                         openplc_runtime.start_enip(int(row[1]))
                     else:
                         print("Disabling EtherNet/IP")
                         openplc_runtime.stop_enip()
                 elif (row[0] == "Pstorage_polling"):
                     if (row[1] != "disabled"):
-                        print("Enabling Persistent Storage with polling rate of " + str(int(row[1])) + " seconds")
+                        print(("Enabling Persistent Storage with polling rate of " + str(int(row[1])) + " seconds"))
                         openplc_runtime.start_pstorage(int(row[1]))
                     else:
                         print("Disabling Persistent Storage")
                         openplc_runtime.stop_pstorage()
                         delete_persistent_file()
         except Error as e:
-            print("error connecting to the database" + str(e))
+            print(("error connecting to the database" + str(e)))
     else:
         print("Error opening DB")
 
@@ -157,7 +158,7 @@ def generate_mbconfig():
             with open('./mbconfig.cfg', 'w+') as f: f.write(mbconfig)
             
         except Error as e:
-            print("error connecting to the database" + str(e))
+            print(("error connecting to the database" + str(e)))
     else:
         print("Error opening DB")
                 
@@ -371,7 +372,7 @@ def user_loader(username):
             return
                     
         except Error as e:
-            print("error connecting to the database" + str(e))
+            print(("error connecting to the database" + str(e)))
             return
     else:
         return
@@ -402,7 +403,7 @@ def request_loader(request):
             return
                     
         except Error as e:
-            print("error connecting to the database" + str(e))
+            print(("error connecting to the database" + str(e)))
             return
     else:
         return
@@ -455,7 +456,7 @@ def login():
             return pages.login_head + pages.bad_login_body
                     
         except Error as e:
-            print("error connecting to the database" + str(e))
+            print(("error connecting to the database" + str(e)))
             return 'Error opening DB'
     else:
         return 'Error opening DB'
@@ -621,7 +622,7 @@ def programs():
     </body>
 </html>"""
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -682,7 +683,7 @@ def reload_program():
 </html>"""
 
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -771,7 +772,7 @@ def update_program_action():
                 return '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=/compile-program?file=' + filename + '"></head></html>'
                 
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -796,7 +797,7 @@ def remove_program():
                 return flask.redirect(flask.url_for('programs'))
                 
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -908,7 +909,7 @@ def upload_program_action():
                 return '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=/compile-program?file=' + prog_file + '"></head></html>'
             
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -937,7 +938,7 @@ def compile_program():
                 cur.close()
                 conn.close()
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
         else:
             print("error connecting to the database")
         
@@ -1055,7 +1056,7 @@ def modbus():
 </html>"""
 
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1176,7 +1177,7 @@ def add_modbus_device():
                     return flask.redirect(flask.url_for('modbus'))
                     
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1302,7 +1303,7 @@ def modbus_edit_device():
                     return_str += 'devpause.value = "' + str(row[21]) + '";}</script></html>'
                     
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1351,7 +1352,7 @@ def modbus_edit_device():
                     return flask.redirect(flask.url_for('modbus'))
                     
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1376,7 +1377,7 @@ def delete_device():
                 generate_mbconfig()
                 return flask.redirect(flask.url_for('modbus'))
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1818,7 +1819,7 @@ def users():
     </body>
 </html>"""
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1886,7 +1887,7 @@ def add_user():
                     return flask.redirect(flask.url_for('users'))
                     
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -1975,7 +1976,7 @@ def edit_user():
     </script>
 </html>"""
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -2016,7 +2017,7 @@ def edit_user():
                     return flask.redirect(flask.url_for('users'))
                     
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -2048,7 +2049,7 @@ def delete_user():
                     conn.close()
                     return flask.redirect(flask.url_for('users'))
             except Error as e:
-                print("error connecting to the database" + str(e))
+                print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -2292,7 +2293,7 @@ def settings():
                     return flask.redirect(flask.url_for('dashboard'))
                     
                 except Error as e:
-                    print("error connecting to the database" + str(e))
+                    print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
@@ -2372,7 +2373,7 @@ if __name__ == '__main__':
     st_file = file.read()
     st_file = st_file.replace('\r','').replace('\n','')
     
-    reload(sys)
+    importlib.reload(sys)
     #PY2 sys.setdefaultencoding('UTF8')
     
     database = "openplc.db"
@@ -2406,6 +2407,6 @@ if __name__ == '__main__':
             app.run(debug=False, host='0.0.0.0', threaded=True, port=8080)
         
         except Error as e:
-            print("error connecting to the database" + str(e))
+            print(("error connecting to the database" + str(e)))
     else:
         print("error connecting to the database")

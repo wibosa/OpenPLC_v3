@@ -1,8 +1,5 @@
 FROM debian:bullseye-20211201
 
-COPY . /workdir
-WORKDIR /workdir
-
 RUN apt update; \
     apt install -y \ 
 	apt-utils \
@@ -22,9 +19,11 @@ RUN apt update; \
 	; \
     apt clean ;  
 
-RUN python -m pip install -r requirements.txt; \ 
-    ./install.sh docker;
+COPY . /workdir
+WORKDIR /workdir
 
 
+RUN python3 -m pip install -r requirements.txt; \ 
+    ./install.sh custom;
 
 ENTRYPOINT ["./start_openplc.sh"]
