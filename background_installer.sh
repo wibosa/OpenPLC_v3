@@ -79,10 +79,10 @@ function install_all_libs {
     echo ""
     echo "[OPEN DNP3]"
     cd utils/dnp3_src
-    echo "creating swapfile..."
-    $1 dd if=/dev/zero of=swapfile bs=1M count=1000
-    $1 mkswap swapfile
-    $1 swapon swapfile
+    # echo "creating swapfile..."
+    # $1 dd if=/dev/zero of=swapfile bs=1M count=1000
+    # $1 mkswap swapfile
+    # $1 swapon swapfile
     cmake ../dnp3_src
     make
     $1 make install
@@ -92,9 +92,9 @@ function install_all_libs {
         exit 1
     fi
     $1 ldconfig
-    echo "removing swapfile..."
-    $1 swapoff swapfile
-    $1 rm -f ./swapfile
+    # echo "removing swapfile..."
+    # $1 swapoff swapfile
+    # $1 rm -f ./swapfile
     cd ../..
 
     echo ""

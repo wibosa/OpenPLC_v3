@@ -2373,7 +2373,7 @@ if __name__ == '__main__':
     st_file = st_file.replace('\r','').replace('\n','')
     
     reload(sys)
-    sys.setdefaultencoding('UTF8')
+    #PY2 sys.setdefaultencoding('UTF8')
     
     database = "openplc.db"
     conn = create_connection(database)
@@ -2401,7 +2401,7 @@ if __name__ == '__main__':
                 openplc_runtime.start_runtime()
                 time.sleep(1)
                 configure_runtime()
-		monitor.parse_st(openplc_runtime.project_file)
+		#BUGGY monitor.parse_st(openplc_runtime.project_file)
             
             app.run(debug=False, host='0.0.0.0', threaded=True, port=8080)
         
