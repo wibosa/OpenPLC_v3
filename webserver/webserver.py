@@ -1,21 +1,21 @@
-import sqlite3
-from sqlite3 import Error
 import os
 import subprocess
 import platform
-import serial.tools.list_ports
 import random
 import datetime
 import time
-import pages
-import openplc
-import monitoring as monitor
 import sys
 import ctypes
+import sqlite3
+from sqlite3 import Error
 
+import importlib
+import serial.tools.list_ports
 import flask 
 import flask_login
-import importlib
+import openplc
+import monitoring as monitor
+import pages
 
 app = flask.Flask(__name__)
 app.secret_key = str(os.urandom(16))
@@ -177,7 +177,7 @@ def draw_top_div():
         top_div += "<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: Red'>Stopped: </span>" + openplc_runtime.project_name + "</center></h3>"
     
     top_div += "<div class='user'><img src='"
-    if (flask_login.current_user.pict_file == "None"):
+    if (flask_login.current_user.pict_file is None):
         top_div += "/static/default-user.png"
     else:
         top_div += flask_login.current_user.pict_file
@@ -467,7 +467,8 @@ def login():
 @app.route('/start_plc')
 def start_plc():
     global openplc_runtime
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
+       
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -482,7 +483,7 @@ def start_plc():
 @app.route('/stop_plc')
 def stop_plc():
     global openplc_runtime
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         openplc_runtime.stop_runtime()
@@ -494,7 +495,7 @@ def stop_plc():
 @app.route('/runtime_logs')
 def runtime_logs():
     global openplc_runtime
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         return openplc_runtime.logs()
@@ -503,7 +504,7 @@ def runtime_logs():
 @app.route('/dashboard')
 def dashboard():
     global openplc_runtime
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -549,7 +550,7 @@ def dashboard():
 
 @app.route('/programs', methods=['GET', 'POST'])
 def programs():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -632,7 +633,7 @@ def programs():
 
 @app.route('/reload-program', methods=['GET', 'POST'])
 def reload_program():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -693,7 +694,7 @@ def reload_program():
         
 @app.route('/update-program', methods=['GET', 'POST'])
 def update_program():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -744,7 +745,7 @@ def update_program():
 
 @app.route('/update-program-action', methods=['GET', 'POST'])
 def update_program_action():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -780,7 +781,7 @@ def update_program_action():
 
 @app.route('/remove-program', methods=['GET', 'POST'])
 def remove_program():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -805,7 +806,7 @@ def remove_program():
 
 @app.route('/upload-program', methods=['GET', 'POST'])
 def upload_program():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -885,7 +886,7 @@ def upload_program():
 
 @app.route('/upload-program-action', methods=['GET', 'POST'])
 def upload_program_action():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -918,7 +919,7 @@ def upload_program_action():
 @app.route('/compile-program', methods=['GET', 'POST'])
 def compile_program():
     global openplc_runtime
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -950,7 +951,7 @@ def compile_program():
 
 @app.route('/compilation-logs', methods=['GET', 'POST'])
 def compilation_logs():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         return openplc_runtime.compilation_status()
@@ -958,7 +959,7 @@ def compilation_logs():
 
 @app.route('/modbus', methods=['GET', 'POST'])
 def modbus():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -1066,7 +1067,7 @@ def modbus():
 
 @app.route('/add-modbus-device', methods=['GET', 'POST'])
 def add_modbus_device():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1185,7 +1186,7 @@ def add_modbus_device():
 
 @app.route('/modbus-edit-device', methods=['GET', 'POST'])
 def modbus_edit_device():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1360,7 +1361,7 @@ def modbus_edit_device():
 
 @app.route('/delete-device', methods=['GET', 'POST'])
 def delete_device():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1385,7 +1386,7 @@ def delete_device():
             
 @app.route('/monitoring', methods=['GET', 'POST'])
 def monitoring():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1512,7 +1513,7 @@ def monitoring():
         
 @app.route('/monitor-update', methods=['GET', 'POST'])
 def monitor_update():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         #if (openplc_runtime.status() == "Compiling"): return 'OpenPLC is compiling new code. Please wait'
@@ -1558,7 +1559,7 @@ def monitor_update():
 
 @app.route('/point-info', methods=['GET', 'POST'])
 def point_info():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         #if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1635,7 +1636,7 @@ def point_info():
 
 @app.route('/point-update', methods=['GET', 'POST'])
 def point_update():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         #if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1672,7 +1673,7 @@ def point_update():
 
 @app.route('/hardware', methods=['GET', 'POST'])
 def hardware():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -1748,7 +1749,7 @@ def hardware():
 
 @app.route('/restore_custom_hardware')
 def restore_custom_hardware():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1761,7 +1762,7 @@ def restore_custom_hardware():
 
 @app.route('/users')
 def users():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -1829,7 +1830,7 @@ def users():
 
 @app.route('/add-user', methods=['GET', 'POST'])
 def add_user():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -1895,7 +1896,7 @@ def add_user():
 
 @app.route('/edit-user', methods=['GET', 'POST'])
 def edit_user():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -2025,7 +2026,7 @@ def edit_user():
 
 @app.route('/delete-user', methods=['GET', 'POST'])
 def delete_user():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
@@ -2057,7 +2058,7 @@ def delete_user():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -2245,28 +2246,28 @@ def settings():
             if (conn != None):
                 try:
                     cur = conn.cursor()
-                    if (modbus_port == None):
+                    if (modbus_port is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Modbus_port'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Modbus_port'", (str(modbus_port),))
                         conn.commit()
                         
-                    if (dnp3_port == None):
+                    if (dnp3_port is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Dnp3_port'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Dnp3_port'", (str(dnp3_port),))
                         conn.commit()
                         
-                    if (enip_port == None):
+                    if (enip_port is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Enip_port'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Enip_port'", (str(enip_port),))
                         conn.commit()
                         
-                    if (pstorage_poll == None):
+                    if (pstorage_poll is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Pstorage_polling'")
                         conn.commit()
                     else:
@@ -2301,7 +2302,7 @@ def settings():
 
 @app.route('/logout')
 def logout():
-    if (flask_login.current_user.is_authenticated == False):
+    if (not flask_login.current_user.is_authenticated ):
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()

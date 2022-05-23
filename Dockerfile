@@ -22,7 +22,6 @@ RUN apt update; \
 COPY . /workdir
 WORKDIR /workdir
 
-
 RUN python3 -m pip install -r requirements.txt; \ 
     ./install.sh custom;
 
