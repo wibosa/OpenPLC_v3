@@ -369,13 +369,13 @@ def user_loader(username):
                     user.name = row[2]
                     user.pict_file = str(row[3])
                     return user
-            return
+            return None
 
         except Error as e:
             print(("error connecting to the database" + str(e)))
-            return
+            return None
     else:
-        return
+        return None
 
 
 @login_manager.request_loader
@@ -400,13 +400,13 @@ def request_loader(request):
                     user.pict_file = str(row[3])
                     user.is_authenticated = (request.form['password'] == row[1])
                     return user
-            return
+            return None
 
         except Error as e:
             print(("error connecting to the database" + str(e)))
-            return
+            return None
     else:
-        return
+        return None
 
 
 @app.before_request
