@@ -11,7 +11,7 @@ from sqlite3 import Error
 
 import importlib
 import serial.tools.list_ports
-import flask 
+import flask
 import flask_login
 import openplc
 import monitoring as monitor
@@ -94,27 +94,27 @@ def generate_mbconfig():
             num_devices = int(row[0])
             mbconfig = 'Num_Devices = "' + str(num_devices) + '"'
             cur.close()
-            
+
             cur=conn.cursor()
             cur.execute("SELECT * FROM Settings")
             rows = cur.fetchall()
             cur.close()
-                    
+
             for row in rows:
                 if (row[0] == "Slave_polling"):
                     slave_polling = str(row[1])
                 elif (row[0] == "Slave_timeout"):
                     slave_timeout = str(row[1])
-                    
+
             mbconfig += '\nPolling_Period = "' + slave_polling + '"'
             mbconfig += '\nTimeout = "' + slave_timeout + '"'
-            
+
             cur = conn.cursor()
             cur.execute("SELECT * FROM Slave_dev")
             rows = cur.fetchall()
             cur.close()
             conn.close()
-            
+
             device_counter = 0
             for row in rows:
                 mbconfig += """
@@ -142,7 +142,7 @@ def generate_mbconfig():
                 mbconfig += 'device' + str(device_counter) + '.RTU_Data_Bits = "' + str(row[7]) + '"\n'
                 mbconfig += 'device' + str(device_counter) + '.RTU_Stop_Bits = "' + str(row[8]) + '"\n'
                 mbconfig += 'device' + str(device_counter) + '.RTU_TX_Pause = "' + str(row[21]) + '"\n\n'
-                
+
                 mbconfig += 'device' + str(device_counter) + '.Discrete_Inputs_Start = "' + str(row[11]) + '"\n'
                 mbconfig += 'device' + str(device_counter) + '.Discrete_Inputs_Size = "' + str(row[12]) + '"\n'
                 mbconfig += 'device' + str(device_counter) + '.Coils_Start = "' + str(row[13]) + '"\n'
@@ -154,39 +154,39 @@ def generate_mbconfig():
                 mbconfig += 'device' + str(device_counter) + '.Holding_Registers_Start = "' + str(row[19]) + '"\n'
                 mbconfig += 'device' + str(device_counter) + '.Holding_Registers_Size = "' + str(row[20]) + '"\n'
                 device_counter += 1
-                
+
             with open('./mbconfig.cfg', 'w+') as f: f.write(mbconfig)
-            
+
         except Error as e:
             print(("error connecting to the database" + str(e)))
     else:
         print("Error opening DB")
-                
 
-    
+
+
 def draw_top_div():
     global openplc_runtime
     top_div = ("<div class='top'>"
     "<img src='/static/openplc_logo.gif' alt='OpenPLC' style='width:111px;height:45px;padding:5px 0px 0px 10px;float:left'>")
-    
+
     if (openplc_runtime.status() == "Running"):
         top_div += "<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: #02EE07'>Running: </span>" + openplc_runtime.project_name + "</center></h3>"
     elif (openplc_runtime.status() == "Compiling"):
         top_div += "<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: Yellow'>Compiling: </span>" + openplc_runtime.project_name + "</center></h3>"
     else:
         top_div += "<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: Red'>Stopped: </span>" + openplc_runtime.project_name + "</center></h3>"
-    
+
     top_div += "<div class='user'><img src='"
     if (flask_login.current_user.pict_file is None):
         top_div += "/static/default-user.png"
     else:
         top_div += flask_login.current_user.pict_file
-    
+
     top_div += "' alt='User' style='width:50px;height:45px;padding:5px 5px 0px 5px;float:right'>"
     top_div += "<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 0px 0px 0px; margin: 0px 0px 0px 0px'>" + flask_login.current_user.name + "</h3>"
     top_div += "</div></div>"
-    
-    return top_div    
+
+    return top_div
 
 
 def draw_status():
@@ -198,8 +198,8 @@ def draw_status():
     else:
         status_str = "<center><h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:0px 0px 0px 0px;'>Status: <i>Stopped</i></span></center></h3>"
         status_str += "<a href='start_plc' class='button' style='width: 210px; height: 53px; margin: 0px 20px 0px 20px;'><b>Start PLC</b></a>"
-    
-    return status_str    
+
+    return status_str
 
 
 def draw_blank_page():
@@ -223,7 +223,7 @@ def draw_blank_page():
                 <div style="w3-container">
                     <br>"""
     return return_str
-    
+
 def draw_compiling_page():
     return_str = draw_blank_page()
     return_str += """
@@ -236,7 +236,7 @@ loading logs...
             </div>
         </div>
     </body>
-    
+
     <script>
         (function (global)
         {
@@ -244,39 +244,39 @@ loading logs...
             {
                 throw new Error("window is undefined");
             }
-            
+
             var _hash = "!";
-            var noBackPlease = function () 
+            var noBackPlease = function ()
             {
                 global.location.href += "#";
 
                 // making sure we have the fruit available for juice....
                 // 50 milliseconds for just once do not cost much (^__^)
-                global.setTimeout(function () 
+                global.setTimeout(function ()
                 {
                     global.location.href += "!";
                 }, 50);
             };
-            
+
             // Earlier we had setInerval here....
-            global.onhashchange = function () 
+            global.onhashchange = function ()
             {
-                if (global.location.hash !== _hash) 
+                if (global.location.hash !== _hash)
                 {
                     global.location.hash = _hash;
                 }
             };
 
-            global.onload = function () 
+            global.onload = function ()
             {
                 loadData();
                 noBackPlease();
-                
+
                 // disables backspace on page except on input fields and textarea..
-                document.body.onkeydown = function (e) 
+                document.body.onkeydown = function (e)
                 {
                     var elm = e.target.nodeName.toLowerCase();
-                    if (e.which === 8 && (elm !== 'input' && elm  !== 'textarea')) 
+                    if (e.which === 8 && (elm !== 'input' && elm  !== 'textarea'))
                     {
                         e.preventDefault();
                     }
@@ -285,38 +285,38 @@ loading logs...
                 };
             };
         })(window);
-        
+
         var req;
-        
+
         function loadData()
         {
             url = 'compilation-logs'
             try
             {
                 req = new XMLHttpRequest();
-            } catch (e) 
+            } catch (e)
             {
                 try
                 {
                     req = new ActiveXObject('Msxml2.XMLHTTP');
-                } catch (e) 
+                } catch (e)
                 {
-                    try 
+                    try
                     {
                         req = new ActiveXObject('Microsoft.XMLHTTP');
-                    } catch (oc) 
+                    } catch (oc)
                     {
                         alert('No AJAX Support');
                         return;
                     }
                 }
             }
-            
+
             req.onreadystatechange = processReqChange;
             req.open('GET', url, true);
             req.send(null);
         }
-        
+
         function processReqChange()
         {
             //If req shows 'complete'
@@ -324,7 +324,7 @@ loading logs...
             {
                 compilation_logs = document.getElementById('mytextarea');
                 dashboard_button = document.getElementById('dashboard_button');
-                
+
                 //If 'OK'
                 if (req.status == 200)
                 {
@@ -335,7 +335,7 @@ loading logs...
                         dashboard_button.style.background='#E02222'
                         dashboard_button.style.pointerEvents='auto'
                     }
-                    
+
                     //Start a new update timer
                     timeoutID = setTimeout('loadData()', 1000);
                 }
@@ -349,7 +349,7 @@ loading logs...
 </html>"""
     return return_str
 
-    
+
 @login_manager.user_loader
 def user_loader(username):
     database = "openplc.db"
@@ -370,7 +370,7 @@ def user_loader(username):
                     user.pict_file = str(row[3])
                     return user
             return
-                    
+
         except Error as e:
             print(("error connecting to the database" + str(e)))
             return
@@ -381,7 +381,7 @@ def user_loader(username):
 @login_manager.request_loader
 def request_loader(request):
     username = request.form.get('username')
-    
+
     database = "openplc.db"
     conn = create_connection(database)
     if (conn != None):
@@ -401,7 +401,7 @@ def request_loader(request):
                     user.is_authenticated = (request.form['password'] == row[1])
                     return user
             return
-                    
+
         except Error as e:
             print(("error connecting to the database" + str(e)))
             return
@@ -414,7 +414,7 @@ def before_request():
     flask.session.permanent = True
     app.permanent_session_lifetime = datetime.timedelta(minutes=5)
     flask.session.modified = True
-        
+
 @app.route('/')
 def index():
     if flask_login.current_user.is_authenticated:
@@ -430,7 +430,7 @@ def login():
 
     username = flask.request.form['username']
     password = flask.request.form['password']
-    
+
     database = "openplc.db"
     conn = create_connection(database)
     if (conn != None):
@@ -452,9 +452,9 @@ def login():
                         return flask.redirect(flask.url_for('dashboard'))
                     else:
                         return pages.login_head + pages.bad_login_body
-                        
+
             return pages.login_head + pages.bad_login_body
-                    
+
         except Error as e:
             print(("error connecting to the database" + str(e)))
             return 'Error opening DB'
@@ -468,7 +468,7 @@ def login():
 def start_plc():
     global openplc_runtime
     if (not flask_login.current_user.is_authenticated ):
-       
+
         return flask.redirect(flask.url_for('login'))
     else:
         monitor.stop_monitor()
@@ -537,14 +537,14 @@ def dashboard():
             return_str += "<font color = '#02CC07'>Running</font></b></p>"
         else:
             return_str += "<font color = 'Red'>Stopped</font></b></p>"
-            
+
         return_str += "<p style='font-family:'Roboto', sans-serif; font-size:16px'><b>Program:</b> " + openplc_runtime.project_name + "</p>"
         return_str += "<p style='font-family:'Roboto', sans-serif; font-size:16px'><b>Description:</b> " + openplc_runtime.project_description + "</p>"
         return_str += "<p style='font-family:'Roboto', sans-serif; font-size:16px'><b>File:</b> " + openplc_runtime.project_file + "</p>"
         return_str += "<p style='font-family:'Roboto', sans-serif; font-size:16px'><b>Runtime:</b> " + openplc_runtime.exec_time() + "</p>"
-        
+
         return_str += pages.dashboard_tail
-        
+
         return return_str
 
 
@@ -598,11 +598,11 @@ def programs():
                 rows = cur.fetchall()
                 cur.close()
                 conn.close()
-                
+
                 for row in rows:
                     return_str += "<tr onclick=\"document.location='reload-program?table_id=" + str(row[0]) + "'\">"
                     return_str += "<td>" + str(row[1]) + "</td><td>" + str(row[2]) + "</td><td>" + time.strftime('%b %d, %Y - %I:%M%p', time.localtime(row[3])) + "</td></tr>"
-                    
+
                 return_str += """
                     </table>
                     <a href="programs?list_all=1" style="text-align:right; float:right; color:black; font-weight:bold;">List all programs</a>
@@ -627,7 +627,7 @@ def programs():
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-        
+
         return return_str
 
 
@@ -688,10 +688,10 @@ def reload_program():
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-        
+
         return return_str
-        
-        
+
+
 @app.route('/update-program', methods=['GET', 'POST'])
 def update_program():
     if (not flask_login.current_user.is_authenticated ):
@@ -699,7 +699,7 @@ def update_program():
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
         prog_id = flask.request.args.get('id')
-        
+
         return_str = pages.w3_style + pages.style + draw_top_div()
         return_str += """
             <div class='main'>
@@ -738,8 +738,8 @@ def update_program():
         </div>
     </body>
 </html>"""
-        
-        
+
+
         return return_str
 
 
@@ -756,7 +756,7 @@ def update_program_action():
             return draw_blank_page() + "<h2>Error</h2><p>You need to select a file to be uploaded!<br><br>Use the back-arrow on your browser to return</p></div></div></div></body></html>"
         prog_id = flask.request.form['prog_id']
         epoch_time = flask.request.form['epoch_time']
-        
+
         database = "openplc.db"
         conn = create_connection(database)
         if (conn != None):
@@ -765,13 +765,13 @@ def update_program_action():
                 cur.execute("SELECT * FROM Programs WHERE Prog_ID = ?", (int(prog_id),))
                 row = cur.fetchone()
                 cur.close()
-                
+
                 filename = str(row[3])
                 prog_file.save(os.path.join('st_files', filename))
-                
+
                 #Redirect back to the compiling page
                 return '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=/compile-program?file=' + filename + '"></head></html>'
-                
+
             except Error as e:
                 print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
@@ -796,7 +796,7 @@ def remove_program():
                 cur.close()
                 conn.close()
                 return flask.redirect(flask.url_for('programs'))
-                
+
             except Error as e:
                 print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
@@ -815,10 +815,10 @@ def upload_program():
         prog_file = flask.request.files['file']
         if (prog_file.filename == ''):
             return draw_blank_page() + "<h2>Error</h2><p>You need to select a file to be uploaded!<br><br>Use the back-arrow on your browser to return</p></div></div></div></body></html>"
-        
+
         filename = str(random.randint(1,1000000)) + ".st"
         prog_file.save(os.path.join('st_files', filename))
-        
+
         return_str = pages.w3_style + pages.style + draw_top_div()
         return_str += """
             <div class='main'>
@@ -848,7 +848,7 @@ def upload_program():
                         action    = "upload-program-action"
                         method    = "post"
                         onsubmit  = "return validateForm()">
-                        
+
                         <label for='prog_name'><b>Name</b></label>
                         <input type='text' id='prog_name' name='prog_name' placeholder='My Program v1.0'>
                         <label for='prog_descr'><b>Description</b></label>
@@ -866,7 +866,7 @@ def upload_program():
             </div>
         </div>
     </body>
-    
+
     <script type="text/javascript">
         function validateForm()
         {
@@ -896,7 +896,7 @@ def upload_program_action():
         epoch_time = flask.request.form['epoch_time']
 
         (prog_name, prog_descr, prog_file, epoch_time) = sanitize_input(prog_name, prog_descr, prog_file, epoch_time)
-        
+
         database = "openplc.db"
         conn = create_connection(database)
         if (conn != None):
@@ -908,13 +908,13 @@ def upload_program_action():
                 conn.close()
                 #Redirect back to the compiling page
                 return '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=/compile-program?file=' + prog_file + '"></head></html>'
-            
+
             except Error as e:
                 print(("error connecting to the database" + str(e)))
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-        
+
 
 @app.route('/compile-program', methods=['GET', 'POST'])
 def compile_program():
@@ -924,7 +924,7 @@ def compile_program():
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
         st_file = flask.request.args.get('file')
-        
+
         #load information about the program being compiled into the openplc_runtime object
         database = "openplc.db"
         conn = create_connection(database)
@@ -942,10 +942,10 @@ def compile_program():
                 print(("error connecting to the database" + str(e)))
         else:
             print("error connecting to the database")
-        
+
         delete_persistent_file()
         openplc_runtime.compile_program(st_file)
-        
+
         return draw_compiling_page()
 
 
@@ -1002,15 +1002,15 @@ def modbus():
                 rows = cur.fetchall()
                 cur.close()
                 conn.close()
-                
+
                 counter_di = 0
                 counter_do = 0
                 counter_ai = 0
                 counter_ao = 0
-                
+
                 for row in rows:
                     return_str += "<tr onclick=\"document.location='modbus-edit-device?table_id=" + str(row[0]) + "'\">"
-                    
+
                     #calculate di
                     if (row[3] == 0):
                         di = "-"
@@ -1018,7 +1018,7 @@ def modbus():
                         di = "%IX" + str(100 + (counter_di/8)) + "." + str(counter_di%8) + " to "
                         counter_di += row[3];
                         di += "%IX" + str(100 + ((counter_di-1)/8)) + "." + str((counter_di-1)%8)
-                        
+
                     #calculate do
                     if (row[4] == 0):
                         do = "-"
@@ -1026,7 +1026,7 @@ def modbus():
                         do = "%QX" + str(100 + (counter_do/8)) + "." + str(counter_do%8) + " to "
                         counter_do += row[4];
                         do += "%QX" + str(100 + ((counter_do-1)/8)) + "." + str((counter_do-1)%8)
-                        
+
                     #calculate ai
                     if (row[5] + row[6] == 0):
                         ai = "-"
@@ -1034,7 +1034,7 @@ def modbus():
                         ai = "%IW" + str(100 + counter_ai) + " to "
                         counter_ai += row[5]+row[6];
                         ai += "%IW" + str(100 + (counter_ai-1))
-                        
+
                     #calculate ao
                     if (row[7] == 0):
                         ao = "-"
@@ -1042,10 +1042,10 @@ def modbus():
                         ao = "%QW" + str(100 + counter_ao) + " to "
                         counter_ao += row[7];
                         ao += "%QW" + str(100 + (counter_ao-1))
-                    
-                    
+
+
                     return_str += "<td>" + str(row[1]) + "</td><td>" + str(row[2]) + "</td><td>" + di + "</td><td>" + do + "</td><td>" + ai + "</td><td>" + ao + "</td></tr>"
-                    
+
                 return_str += """
                     </table>
                     <br>
@@ -1061,9 +1061,9 @@ def modbus():
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-        
+
         return return_str
-        
+
 
 @app.route('/add-modbus-device', methods=['GET', 'POST'])
 def add_modbus_device():
@@ -1124,7 +1124,7 @@ def add_modbus_device():
                             <div id="rtu-stuff">
                             <label for='dev_cport'><b>COM Port</b></label>
                             <select id='dev_cport' name='device_cport'>"""
-                            
+
             ports = [comport.device for comport in serial.tools.list_ports.comports()]
             for port in ports:
                 if (platform.system().startswith("CYGWIN")):
@@ -1132,11 +1132,11 @@ def add_modbus_device():
                 else:
                     port_name = port
                 return_str += "<option value='" + port_name + "'>" + port_name + "</option>"
-            
+
             return_str += pages.add_slave_devices_tail + pages.add_devices_script
-            
+
             return return_str
-            
+
         elif (flask.request.method == 'POST'):
             devname = flask.request.form.get('device_name')
             devtype = flask.request.form.get('device_protocol')
@@ -1149,7 +1149,7 @@ def add_modbus_device():
             devdata = flask.request.form.get('device_data')
             devstop = flask.request.form.get('device_stop')
             devpause = flask.request.form.get('device_pause')
-            
+
             di_start = flask.request.form.get('di_start')
             di_size = flask.request.form.get('di_size')
             do_start = flask.request.form.get('do_start')
@@ -1160,7 +1160,7 @@ def add_modbus_device():
             aor_size = flask.request.form.get('aor_size')
             aow_start = flask.request.form.get('aow_start')
             aow_size = flask.request.form.get('aow_size')
-            
+
             (devname, devtype, devid, devcport, devbaud, devparity, devdata, devstop, devpause, devip, devport, di_start, di_size, do_start, do_size, ai_start, ai_size, aor_start, aor_size, aow_start, aow_size) \
                 = sanitize_input(devname, devtype, devid, devcport, devbaud, devparity, devdata, devstop, devpause, devip, devport, di_start, di_size, do_start, do_size, ai_start, ai_size, aor_start, aor_size, aow_start, aow_size)
 
@@ -1173,10 +1173,10 @@ def add_modbus_device():
                     conn.commit()
                     cur.close()
                     conn.close()
-                    
+
                     generate_mbconfig()
                     return flask.redirect(flask.url_for('modbus'))
-                    
+
                 except Error as e:
                     print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
@@ -1222,7 +1222,7 @@ def modbus_edit_device():
                             action    =  "modbus-edit-device"
                             method    =  "post"
                             onsubmit  =  "return validateForm()">"""
-                            
+
             database = "openplc.db"
             conn = create_connection(database)
             if (conn != None):
@@ -1271,9 +1271,9 @@ def modbus_edit_device():
                             port_name = port
                         if (str(row[4]) == port_name):
                             return_str += "<option selected='selected' value'" + port_name + "'>" + port_name + "</option>"
-                        else:   
+                        else:
                             return_str += "<option value='" + port_name + "'>" + port_name + "</option>"
-                    
+
                     return_str += pages.edit_slave_devices_tail
                     return_str += dev_id
                     return_str += """' class="button" style="width: 310px; height: 53px; margin: 0px 20px 0px 20px;"><b>Delete device</b></a></center>
@@ -1302,15 +1302,15 @@ def modbus_edit_device():
                     return_str += 'aowstart.value = "' + str(row[19]) + '";'
                     return_str += 'aowsize.value = "' + str(row[20]) + '";'
                     return_str += 'devpause.value = "' + str(row[21]) + '";}</script></html>'
-                    
+
                 except Error as e:
                     print(("error connecting to the database" + str(e)))
                     return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-            
+
             return return_str
-            
+
         elif (flask.request.method == 'POST'):
             devid_db = flask.request.form.get('db_dev_id')
             devname = flask.request.form.get('device_name')
@@ -1324,7 +1324,7 @@ def modbus_edit_device():
             devdata = flask.request.form.get('device_data')
             devstop = flask.request.form.get('device_stop')
             devpause = flask.request.form.get('device_pause')
-            
+
             di_start = flask.request.form.get('di_start')
             di_size = flask.request.form.get('di_size')
             do_start = flask.request.form.get('do_start')
@@ -1335,7 +1335,7 @@ def modbus_edit_device():
             aor_size = flask.request.form.get('aor_size')
             aow_start = flask.request.form.get('aow_start')
             aow_size = flask.request.form.get('aow_size')
-            
+
             (devname, devtype, devid, devcport, devbaud, devparity, devdata, devstop, devpause, devip, devport, di_start, di_size, do_start, do_size, ai_start, ai_size, aor_start, aor_size, aow_start, aow_size, devid_db) \
                 = sanitize_input(devname, devtype, devid, devcport, devbaud, devparity, devdata, devstop, devpause, devip, devport, di_start, di_size, do_start, do_size, ai_start, ai_size, aor_start, aor_size, aow_start, aow_size, devid_db)
 
@@ -1348,10 +1348,10 @@ def modbus_edit_device():
                     conn.commit()
                     cur.close()
                     conn.close()
-                    
+
                     generate_mbconfig()
                     return flask.redirect(flask.url_for('modbus'))
-                    
+
                 except Error as e:
                     print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
@@ -1383,7 +1383,7 @@ def delete_device():
         else:
             return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
 
-            
+
 @app.route('/monitoring', methods=['GET', 'POST'])
 def monitoring():
     if (not flask_login.current_user.is_authenticated ):
@@ -1399,7 +1399,7 @@ def monitoring():
                     <a href="dashboard" class="w3-bar-item w3-button"><img src="/static/home-icon-64x64.png" alt="Dashboard" style="width:47px;height:32px;padding:0px 15px 0px 0px;float:left"><p style='font-family:"Roboto", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Dashboard</p></a>
                     <a href='programs' class='w3-bar-item w3-button'><img src='/static/programs-icon-64x64.png' alt='Programs' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Programs</p></a>
                     <a href='modbus' class='w3-bar-item w3-button'><img src='/static/modbus-icon-512x512.png' alt='Modbus' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Slave Devices</p></a>
-                    <a href="monitoring" class="w3-bar-item w3-button" style="background-color:#E02222; padding-right:0px;padding-top:0px;padding-bottom:0px"><img src="/static/monitoring-icon-64x64.png" alt="Monitoring" style="width:47px;height:39px;padding:7px 15px 0px 0px;float:left"><img src="/static/arrow.png" style="width:17px;height:49px;padding:0px 0px 0px 0px;margin: 0px 0px 0px 0px; float:right"><p style='font-family:"Roboto", sans-serif; font-size:20px; color:white;margin: 10px 0px 0px 0px'>Monitoring</p></a>                    
+                    <a href="monitoring" class="w3-bar-item w3-button" style="background-color:#E02222; padding-right:0px;padding-top:0px;padding-bottom:0px"><img src="/static/monitoring-icon-64x64.png" alt="Monitoring" style="width:47px;height:39px;padding:7px 15px 0px 0px;float:left"><img src="/static/arrow.png" style="width:17px;height:49px;padding:0px 0px 0px 0px;margin: 0px 0px 0px 0px; float:right"><p style='font-family:"Roboto", sans-serif; font-size:20px; color:white;margin: 10px 0px 0px 0px'>Monitoring</p></a>
                     <a href='hardware' class='w3-bar-item w3-button'><img src='/static/hardware-icon-980x974.png' alt='Hardware' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Hardware</p></a>
                     <a href='users' class='w3-bar-item w3-button'><img src='/static/users-icon-64x64.png' alt='Users' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Users</p></a>
                     <a href='settings' class='w3-bar-item w3-button'><img src='/static/settings-icon-64x64.png' alt='Settings' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Settings</p></a>
@@ -1425,7 +1425,7 @@ def monitoring():
                             <tr style='background-color: white'>
                                 <th>Point Name</th><th>Type</th><th>Location</th><th>Forced</th><th>Value</th>
                             </tr>"""
-        
+
         if (openplc_runtime.status() == "Running"):
             #Check Modbus Server status
             modbus_enabled = False
@@ -1448,12 +1448,12 @@ def monitoring():
                                 modbus_port_cfg = int(row[1])
                             else:
                                 modbus_enabled = False
-            
+
                 except Error as e:
                     return "error connecting to the database" + str(e)
             else:
                 return "Error opening DB"
-            
+
             if modbus_enabled == True:
                 monitor.start_monitor(modbus_port_cfg)
                 data_index = 0
@@ -1483,7 +1483,7 @@ def monitoring():
                     </div>
                     <input type='hidden' id='modbus_port_cfg' name='modbus_port_cfg' value='""" + str(modbus_port_cfg) + "'>"
                 return_str += pages.monitoring_tail
-            
+
             #Modbus Server is not enabled
             else:
                 return_str += """
@@ -1497,8 +1497,8 @@ def monitoring():
         </div>
     </body>
 </html>"""
-            
-        #Runtime is not running        
+
+        #Runtime is not running
         else:
             return_str += """
                         </table>
@@ -1510,7 +1510,7 @@ def monitoring():
 </html>"""
 
         return return_str
-        
+
 @app.route('/monitor-update', methods=['GET', 'POST'])
 def monitor_update():
     if (not flask_login.current_user.is_authenticated ):
@@ -1523,7 +1523,7 @@ def monitor_update():
                             <tr style='background-color: white'>
                                 <th>Point Name</th><th>Type</th><th>Location</th><th>Forced</th><th>Value</th>
                             </tr>"""
-        
+
         #if (openplc_runtime.status() == "Running"):
         if (True):
             mb_port_cfg = flask.request.args.get('mb_port')
@@ -1550,10 +1550,10 @@ def monitor_update():
                     return_str += str(debug_data.value)
                 return_str += '</tr>'
                 data_index += 1
-        
-        return_str += """ 
+
+        return_str += """
                         </table>"""
-        
+
         return return_str
 
 
@@ -1574,7 +1574,7 @@ def point_info():
                     <a href="dashboard" class="w3-bar-item w3-button"><img src="/static/home-icon-64x64.png" alt="Dashboard" style="width:47px;height:32px;padding:0px 15px 0px 0px;float:left"><p style='font-family:"Roboto", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Dashboard</p></a>
                     <a href='programs' class='w3-bar-item w3-button'><img src='/static/programs-icon-64x64.png' alt='Programs' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Programs</p></a>
                     <a href='modbus' class='w3-bar-item w3-button'><img src='/static/modbus-icon-512x512.png' alt='Modbus' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Slave Devices</p></a>
-                    <a href="monitoring" class="w3-bar-item w3-button" style="background-color:#E02222; padding-right:0px;padding-top:0px;padding-bottom:0px"><img src="/static/monitoring-icon-64x64.png" alt="Monitoring" style="width:47px;height:39px;padding:7px 15px 0px 0px;float:left"><img src="/static/arrow.png" style="width:17px;height:49px;padding:0px 0px 0px 0px;margin: 0px 0px 0px 0px; float:right"><p style='font-family:"Roboto", sans-serif; font-size:20px; color:white;margin: 10px 0px 0px 0px'>Monitoring</p></a>                    
+                    <a href="monitoring" class="w3-bar-item w3-button" style="background-color:#E02222; padding-right:0px;padding-top:0px;padding-bottom:0px"><img src="/static/monitoring-icon-64x64.png" alt="Monitoring" style="width:47px;height:39px;padding:7px 15px 0px 0px;float:left"><img src="/static/arrow.png" style="width:17px;height:49px;padding:0px 0px 0px 0px;margin: 0px 0px 0px 0px; float:right"><p style='font-family:"Roboto", sans-serif; font-size:20px; color:white;margin: 10px 0px 0px 0px'>Monitoring</p></a>
                     <a href='hardware' class='w3-bar-item w3-button'><img src='/static/hardware-icon-980x974.png' alt='Hardware' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Hardware</p></a>
                     <a href='users' class='w3-bar-item w3-button'><img src='/static/users-icon-64x64.png' alt='Users' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Users</p></a>
                     <a href='settings' class='w3-bar-item w3-button'><img src='/static/settings-icon-64x64.png' alt='Settings' style='width:47px;height:32px;padding:0px 15px 0px 0px;float:left'><p style='font-family:\"Roboto\", sans-serif; font-size:20px; color:white;margin: 2px 0px 0px 0px'>Settings</p></a>
@@ -1610,7 +1610,7 @@ def point_info():
             return_str += """<p style='font-family:"Roboto", sans-serif; font-size:16px'><b>Value: </b>""" + "{:10.4f}".format(debug_data.value) + "</p>"
         else:
             return_str += """<p style='font-family:"Roboto", sans-serif; font-size:16px'><b>Value: </b>""" + str(debug_data.value) + "</p>"
-        
+
         return_str += """<br>
                         <br>
                     </div>
@@ -1663,7 +1663,7 @@ def point_update():
             return_str += """<p style='font-family:"Roboto", sans-serif; font-size:16px'><b>Value: </b>""" + "{:10.4f}".format(debug_data.value) + "</p>"
         else:
             return_str += """<p style='font-family:"Roboto", sans-serif; font-size:16px'><b>Value: </b>""" + str(debug_data.value) + "</p>"
-        
+
         return_str += """<br>
                         <br>"""
         return return_str
@@ -1709,7 +1709,7 @@ def hardware():
             if (current_driver == "pixtend_2s"): return_str += "<option selected='selected' value='pixtend_2s'>PiXtend 2s</option>"
             else: return_str += "<option value='pixtend_2s'>PiXtend 2s</option>"
             if (current_driver == "pixtend_2l"): return_str += "<option selected='selected' value='pixtend_2l'>PiXtend 2l</option>"
-            else: return_str += "<option value='pixtend_2l'>PiXtend 2l</option>"  
+            else: return_str += "<option value='pixtend_2l'>PiXtend 2l</option>"
             if (current_driver == "rpi"): return_str += "<option selected='selected' value='rpi'>Raspberry Pi</option>"
             else: return_str += "<option value='rpi'>Raspberry Pi</option>"
             if (current_driver == "rpi_old"): return_str += "<option selected='selected' value='rpi_old'>Raspberry Pi - Old Model (2011 model B)</option>"
@@ -1734,16 +1734,16 @@ def hardware():
                             <textarea wrap="off" spellcheck="false" name="custom_layer_code" id="custom_layer_code">"""
             with open('./core/psm/main.py') as f: return_str += f.read()
             return_str += pages.hardware_tail
-            
+
         else:
             hardware_layer = flask.request.form['hardware_layer']
             custom_layer_code = flask.request.form['custom_layer_code']
             with open('./active_program') as f: current_program = f.read()
             with open('./core/psm/main.py', 'w+') as f: f.write(custom_layer_code)
-            
+
             subprocess.call(['./scripts/change_hardware_layer.sh', hardware_layer])
             return "<head><meta http-equiv=\"refresh\" content=\"0; URL='compile-program?file=" + current_program + "'\" /></head>"
-        
+
         return return_str
 
 
@@ -1753,12 +1753,12 @@ def restore_custom_hardware():
         return flask.redirect(flask.url_for('login'))
     else:
         if (openplc_runtime.status() == "Compiling"): return draw_compiling_page()
-        
+
         #Restore the original custom layer code
         with open('./core/psm/main.original') as f: original_code = f.read()
         with open('./core/psm/main.py', 'w+') as f: f.write(original_code)
         return flask.redirect(flask.url_for('hardware'))
-        
+
 
 @app.route('/users')
 def users():
@@ -1795,7 +1795,7 @@ def users():
                         <tr style='background-color: white'>
                             <th>Full Name</th><th>Username</th><th>Email</th>
                         </tr>"""
-        
+
         database = "openplc.db"
         conn = create_connection(database)
         if (conn != None):
@@ -1805,11 +1805,11 @@ def users():
                 rows = cur.fetchall()
                 cur.close()
                 conn.close()
-                
+
                 for row in rows:
                     return_str += "<tr onclick=\"document.location='edit-user?table_id=" + str(row[0]) + "'\">"
                     return_str += "<td>" + str(row[1]) + "</td><td>" + str(row[2]) + "</td><td>" + str(row[3]) + "</td></tr>"
-                
+
                 return_str += """
                 </table>
                     <br>
@@ -1824,7 +1824,7 @@ def users():
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
         else:
             return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-        
+
         return return_str
 
 
@@ -1853,7 +1853,7 @@ def add_user():
                         <br>"""
             return_str += draw_status() + pages.add_user_tail
             return return_str
-            
+
         elif (flask.request.method == 'POST'):
             name = flask.request.form['full_name']
             username = flask.request.form['user_name']
@@ -1865,7 +1865,7 @@ def add_user():
             form_has_picture = True
             if ('file' not in flask.request.files):
                 form_has_picture = False
-            
+
             database = "openplc.db"
             conn = create_connection(database)
             if (conn != None):
@@ -1886,7 +1886,7 @@ def add_user():
                     cur.close()
                     conn.close()
                     return flask.redirect(flask.url_for('users'))
-                    
+
                 except Error as e:
                     print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
@@ -1931,7 +1931,7 @@ def edit_user():
                             action    =  "edit-user"
                             method    =  "post"
                             onsubmit  =  "return validateForm()">"""
-                        
+
             database = "openplc.db"
             conn = create_connection(database)
             if (conn != None):
@@ -1941,7 +1941,7 @@ def edit_user():
                     row = cur.fetchone()
                     cur.close()
                     conn.close()
-                    return_str += "<input type='hidden' value='" + user_id + "' id='user_id' name='user_id'/>" 
+                    return_str += "<input type='hidden' value='" + user_id + "' id='user_id' name='user_id'/>"
                     return_str += "<label for='full_name'><b>Name</b></label><input type='text' id='full_name' name='full_name' value='" + str(row[1]) + "'>"
                     return_str += "<label for='user_name'><b>Username</b></label><input type='text' id='user_name' name='user_name' value='" + str(row[2]) + "'>"
                     return_str += "<label for='user_email'><b>Email</b></label><input type='text' id='user_email' name='user_email' value='" + str(row[3]) + "'>"
@@ -1981,9 +1981,9 @@ def edit_user():
                     return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return_str += 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-            
+
             return return_str
-            
+
         elif (flask.request.method == 'POST'):
             user_id = flask.request.form['user_id']
             name = flask.request.form['full_name']
@@ -1994,7 +1994,7 @@ def edit_user():
             form_has_picture = True
             if ('file' not in flask.request.files):
                 form_has_picture = False
-            
+
             database = "openplc.db"
             conn = create_connection(database)
             if (conn != None):
@@ -2016,7 +2016,7 @@ def edit_user():
                     cur.close()
                     conn.close()
                     return flask.redirect(flask.url_for('users'))
-                    
+
                 except Error as e:
                     print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
@@ -2077,10 +2077,10 @@ def settings():
                         action      = "settings"
                         method      = "post"
                         onsubmit    = "return validateForm()">
-                        
+
                         <label class="container">
                             <b>Enable Modbus Server</b>"""
-            
+
             database = "openplc.db"
             conn = create_connection(database)
             if (conn != None):
@@ -2090,7 +2090,7 @@ def settings():
                     rows = cur.fetchall()
                     cur.close()
                     conn.close()
-                    
+
                     for row in rows:
                         if (row[0] == "Modbus_port"):
                             modbus_port = str(row[1])
@@ -2106,7 +2106,7 @@ def settings():
                             slave_polling = str(row[1])
                         elif (row[0] == "Slave_timeout"):
                             slave_timeout = str(row[1])
-                    
+
                     if (modbus_port == 'disabled'):
                         return_str += """
                             <input id="modbus_server" type="checkbox">
@@ -2121,14 +2121,14 @@ def settings():
                         </label>
                         <label for='modbus_server_port'><b>Modbus Server Port</b></label>
                         <input type='text' id='modbus_server_port' name='modbus_server_port' value='""" + modbus_port + "'>"
-                        
+
                     return_str += """
                         <br>
                         <br>
                         <br>
                         <label class="container">
                             <b>Enable DNP3 Server</b>"""
-                    
+
                     if (dnp3_port == 'disabled'):
                         return_str += """
                             <input id="dnp3_server" type="checkbox">
@@ -2143,14 +2143,14 @@ def settings():
                         </label>
                         <label for='dnp3_server_port'><b>DNP3 Server Port</b></label>
                         <input type='text' id='dnp3_server_port' name='dnp3_server_port' value='""" + dnp3_port + "'>"
-                    
+
                     return_str += """
                         <br>
                         <br>
                         <br>
                         <label class="container">
                             <b>Enable EtherNet/IP Server</b>"""
-                            
+
                     if (enip_port == 'disabled'):
                         return_str += """
                             <input id="enip_server" type="checkbox">
@@ -2165,14 +2165,14 @@ def settings():
                         </label>
                         <label for='enip_server_port'><b>EtherNet/IP Server Port</b></label>
                         <input type='text' id='enip_server_port' name='enip_server_port' value='""" + enip_port + "'>"
-                    
+
                     return_str += """
                         <br>
                         <br>
                         <br>
                         <label class="container">
                             <b>Enable Persistent Storage Thread</b>"""
-                            
+
                     if (pstorage_poll == 'disabled'):
                         return_str += """
                             <input id="pstorage_thread" type="checkbox">
@@ -2187,14 +2187,14 @@ def settings():
                         </label>
                         <label for='pstorage_thread_poll'><b>Persistent Storage polling rate</b></label>
                         <input type='text' id='pstorage_thread_poll' name='pstorage_thread_poll' value='""" + pstorage_poll + "'>"
-                    
+
                     return_str += """
                         <br>
                         <br>
                         <br>
                         <label class="container">
                             <b>Start OpenPLC in RUN mode</b>"""
-                            
+
                     if (start_run == 'false'):
                         return_str += """
                             <input id="auto_run" type="checkbox">
@@ -2207,22 +2207,22 @@ def settings():
                             <span class="checkmark"></span>
                         </label>
                         <input type='hidden' value='true' id='auto_run_text' name='auto_run_text'/>"""
-                    
+
                     return_str += """
                         <br>
                         <h2>Slave Devices</h2>
                         <label for='slave_polling_period'><b>Polling Period (ms)</b></label>
                         <input type='text' id='slave_polling_period' name='slave_polling_period' value='""" + slave_polling + "'>"
-                    
+
                     return_str += """
                         <br>
                         <br>
                         <br>
                         <label for='slave_timeout'><b>Timeout (ms)</b></label>
                         <input type='text' id='slave_timeout' name='slave_timeout' value='""" + slave_timeout + "'>"
-                    
+
                     return_str += pages.settings_tail
-                    
+
                 except Error as e:
                     return_str += "error connecting to the database" + str(e)
             else:
@@ -2238,7 +2238,7 @@ def settings():
             start_run = flask.request.form.get('auto_run_text')
             slave_polling = flask.request.form.get('slave_polling_period')
             slave_timeout = flask.request.form.get('slave_timeout')
-            
+
             (modbus_port, dnp3_port, enip_port, pstorage_poll, start_run, slave_polling, slave_timeout) = sanitize_input(modbus_port, dnp3_port, enip_port, pstorage_poll, start_run, slave_polling, slave_timeout)
 
             database = "openplc.db"
@@ -2252,53 +2252,53 @@ def settings():
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Modbus_port'", (str(modbus_port),))
                         conn.commit()
-                        
+
                     if (dnp3_port is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Dnp3_port'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Dnp3_port'", (str(dnp3_port),))
                         conn.commit()
-                        
+
                     if (enip_port is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Enip_port'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Enip_port'", (str(enip_port),))
                         conn.commit()
-                        
+
                     if (pstorage_poll is None):
                         cur.execute("UPDATE Settings SET Value = 'disabled' WHERE Key = 'Pstorage_polling'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Pstorage_polling'", (str(pstorage_poll),))
                         conn.commit()
-                        
+
                     if (start_run == 'true'):
                         cur.execute("UPDATE Settings SET Value = 'true' WHERE Key = 'Start_run_mode'")
                         conn.commit()
                     else:
                         cur.execute("UPDATE Settings SET Value = 'false' WHERE Key = 'Start_run_mode'")
                         conn.commit()
-                        
+
                     cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Slave_polling'", (str(slave_polling),))
                     conn.commit()
-                    
+
                     cur.execute("UPDATE Settings SET Value = ? WHERE Key = 'Slave_timeout'", (str(slave_timeout),))
                     conn.commit()
-                    
+
                     cur.close()
                     conn.close()
                     configure_runtime()
                     generate_mbconfig()
                     return flask.redirect(flask.url_for('dashboard'))
-                    
+
                 except Error as e:
                     print(("error connecting to the database" + str(e)))
                     return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.<br><br>Error: ' + str(e)
             else:
                 return 'Error connecting to the database. Make sure that your openplc.db file is not corrupt.'
-        
+
 
 @app.route('/logout')
 def logout():
@@ -2313,7 +2313,7 @@ def logout():
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return 'Unauthorized'
-    
+
 #----------------------------------------------------------------------------
 #Creates a connection with the SQLite database.
 #----------------------------------------------------------------------------
@@ -2349,7 +2349,7 @@ def escape(s, quote=True):
     characters, both double quote (") and single quote (') characters are also
     translated.
     """
-    if s is None: 
+    if s is None:
         return s
     s = str(s) # force string
     s = s.replace("&", "&amp;") # Must be done first!
@@ -2367,16 +2367,16 @@ def escape(s, quote=True):
 #----------------------------------------------------------------------------
 def main():
    print("Starting the web interface...")
-   
+
 if __name__ == '__main__':
     #Load information about current program on the openplc_runtime object
     file = open("active_program", "r")
     st_file = file.read()
     st_file = st_file.replace('\r','').replace('\n','')
-    
+
     importlib.reload(sys)
     #PY2 sys.setdefaultencoding('UTF8')
-    
+
     database = "openplc.db"
     conn = create_connection(database)
     if (conn != None):
@@ -2388,25 +2388,25 @@ if __name__ == '__main__':
             openplc_runtime.project_name = str(row[1])
             openplc_runtime.project_description = str(row[2])
             openplc_runtime.project_file = str(row[3])
-            
+
             cur.execute("SELECT * FROM Settings")
             rows = cur.fetchall()
             cur.close()
             conn.close()
-            
+
             for row in rows:
                 if (row[0] == "Start_run_mode"):
                     start_run = str(row[1])
-                    
+
             if (start_run == 'true'):
                 print("Initializing OpenPLC in RUN mode...")
                 openplc_runtime.start_runtime()
                 time.sleep(1)
                 configure_runtime()
 		#BUGGY monitor.parse_st(openplc_runtime.project_file)
-            
+
             app.run(debug=False, host='0.0.0.0', threaded=True, port=8080)
-        
+
         except Error as e:
             print(("error connecting to the database" + str(e)))
     else:
