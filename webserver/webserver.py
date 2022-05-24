@@ -30,11 +30,22 @@ class User(flask_login.UserMixin):
 
 def configure_runtime():
     global openplc_runtime
+    #Load information about current program on the openplc_runtime object
+    file = open("active_program", "r",encoding="utf8")
+    st_file = file.read()
+    st_file = st_file.replace('\r','').replace('\n','')
     database = "openplc.db"
     conn = create_connection(database)
     if not conn is None:
         try:
             print("Opening database")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Programs WHERE File=?", (st_file,))
+            row = cur.fetchone()
+            openplc_runtime.project_name = str(row[1])
+            openplc_runtime.project_description = str(row[2])
+            openplc_runtime.project_file = str(row[3])
+
             cur = conn.cursor()
             cur.execute("SELECT * FROM Settings")
             rows = cur.fetchall()
@@ -477,7 +488,7 @@ def start_plc():
         time.sleep(1)
         configure_runtime()
         monitor.cleanup()
-        monitor.parse_st(openplc_runtime.project_file)
+        #monitor.parse_st(openplc_runtime.project_file)
         return flask.redirect(flask.url_for('dashboard'))
 
 
@@ -2426,10 +2437,10 @@ def main():
     print("Starting the web interface...")
 
 if __name__ == '__main__':
-    #Load information about current program on the openplc_runtime object
-    file = open("active_program", "r",encoding="utf8")
-    st_file = file.read()
-    st_file = st_file.replace('\r','').replace('\n','')
+    
+    
+    
+    
 
     importlib.reload(sys)
     #PY2 sys.setdefaultencoding('UTF8')

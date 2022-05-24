@@ -46,13 +46,13 @@ class NonBlockingStreamReader:
             Collect lines from 'stream' and put them in 'queue'.
             '''
 
-            #while True:
-            while self.end_of_stream is False:
+            while True:
+            #while not self.end_of_stream:
                 line = stream.readline()
                 if line:
                     queue.put(line)
-                    if (line.find("Compilation finished with errors!") >= 0 or
-                            line.find("Compilation finished successfully!") >= 0):
+                    if (line.find(b"Compilation finished with errors!") >= 0 or
+                            line.find(b"Compilation finished successfully!") >= 0):
                         self.end_of_stream = True
                 else:
                     self.end_of_stream = True
