@@ -12,14 +12,33 @@ from sqlite3 import Error
 
 import importlib
 import serial.tools.list_ports
-import flask
+import flask 
 import flask_login
 import openplc
 import monitoring as monitor
 import pages
+#from flask import g
 
 app = flask.Flask(__name__)
-app.secret_key = str(os.urandom(16))
+app.secret_key = str(os.ura
+
+# flash idiomatic database access
+DATABASE = 'openplc.db'
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
+
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
@@ -34,23 +53,25 @@ def configure_runtime():
     file = open("active_program", "r",encoding="utf8")
     st_file = file.read()
     st_file = st_file.replace('\r','').replace('\n','')
-    database = "openplc.db"
-    conn = create_connection(database)
-    if not conn is None:
+
+    #database = "openplc.db"
+    #conn = create_connection(database)
+    if not cur is None:
         try:
             print("Opening database")
-            cur = conn.cursor()
+            cur = get_db().cursor()
+            #cur = conn.cursor()
             cur.execute("SELECT * FROM Programs WHERE File=?", (st_file,))
             row = cur.fetchone()
             openplc_runtime.project_name = str(row[1])
             openplc_runtime.project_description = str(row[2])
             openplc_runtime.project_file = str(row[3])
 
-            cur = conn.cursor()
+            #cur = conn.cursor()
             cur.execute("SELECT * FROM Settings")
             rows = cur.fetchall()
-            cur.close()
-            conn.close()
+            #cur.close()
+            #conn.close()
 
             for row in rows:
                 if row[0] == "Modbus_port":
