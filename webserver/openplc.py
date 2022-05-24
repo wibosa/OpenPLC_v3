@@ -102,13 +102,14 @@ class runtime:
         self.is_compiling = True
         global compilation_status_str
         global compilation_object
-        compilation_status_str = ""
+        compilation_status_str = b""
         a = subprocess.Popen(['./scripts/compile_program.sh', str(st_file)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         compilation_object = NonBlockingStreamReader(a.stdout)
     
     def compilation_status(self):
         global compilation_status_str
         global compilation_object
+        compilation_status_str = b""
         while True:
             line = compilation_object.readline()
             if not line: break
