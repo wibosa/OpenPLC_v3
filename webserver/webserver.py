@@ -166,14 +166,13 @@ def generate_mbconfig():
                 mbconfig += 'device' + str(device_counter) + '.Holding_Registers_Size = "' + str(row[20]) + '"\n'
                 device_counter += 1
 
-            with open('./mbconfig.cfg', 'w+',encoding="utf8") as f:
+            with open('./mbconfig.cfg', 'w+') as f:
                 f.write(mbconfig)
 
         except Error as e:
             print(("error connecting to the database" + str(e)))
     else:
         print("Error opening DB")
-
 
 
 def draw_top_div():

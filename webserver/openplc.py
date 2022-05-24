@@ -51,8 +51,8 @@ class NonBlockingStreamReader:
                 line = stream.readline()
                 if line:
                     queue.put(line)
-                    if (line.find(b"Compilation finished with errors!") >= 0 or
-                            line.find(b"Compilation finished successfully!") >= 0):
+                    if (line.find("Compilation finished with errors!") >= 0 or
+                            line.find("Compilation finished successfully!") >= 0):
                         self.end_of_stream = True
                 else:
                     self.end_of_stream = True
@@ -110,7 +110,7 @@ class runtime:
         self.is_compiling = True
         global compilation_status_str
         global compilation_object
-        compilation_status_str = b""
+        compilation_status_str = ""
         a = subprocess.Popen(['./scripts/compile_program.sh', str(st_file)],
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         compilation_object = NonBlockingStreamReader(a.stdout)
@@ -118,7 +118,7 @@ class runtime:
     def compilation_status(self):
         global compilation_status_str
         global compilation_object
-        compilation_status_str = b""
+        compilation_status_str = ""
         while True:
             line = compilation_object.readline()
             if not line:
