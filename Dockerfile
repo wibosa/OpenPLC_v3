@@ -18,11 +18,11 @@ RUN apt update; \
 	pkg-config \
 	; \
     apt clean ;  
+RUN python3 -m pip install -U flask flask-login pyserial pymodbus ;  
 
 COPY . /workdir
 WORKDIR /workdir
 
-RUN python3 -m pip install -r requirements.txt; \ 
-    ./install.sh custom;
+RUN ./install2.sh custom
 
 ENTRYPOINT ["./start_openplc.sh"]

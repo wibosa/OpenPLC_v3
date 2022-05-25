@@ -20,7 +20,7 @@ import pages
 #from flask import g
 
 app = flask.Flask(__name__)
-app.secret_key = str(os.ura
+app.secret_key = str(os.urandom(16))
 
 # flash idiomatic database access
 DATABASE = 'openplc.db'
@@ -37,6 +37,20 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
+
+#db.row_factory = make_dicts
+db.row_factory = sqlite3.Row
+r = sqlite3.Row
+
+
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
 
 
 login_manager = flask_login.LoginManager()
@@ -53,6 +67,9 @@ def configure_runtime():
     file = open("active_program", "r",encoding="utf8")
     st_file = file.read()
     st_file = st_file.replace('\r','').replace('\n','')
+
+    for user in query_db('select * from users'):
+        print(user['username'], 'has the id', user['user_id'])
 
     #database = "openplc.db"
     #conn = create_connection(database)
