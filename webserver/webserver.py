@@ -17,13 +17,22 @@ import flask_login
 import openplc
 import monitoring as monitor
 import pages
-from flask import g
 
-app = flask.Flask(__name__)
-app.secret_key = str(os.urandom(16))
+from flask import Flask, request, g
+from werkzeug.local import LocalProxy
 
 # flash idiomatic database access
-DATABASE = 'openplc.db'
+def init_db():
+    DATABASE = 'openplc.db'
+
+def create_app():
+    app = flask.Flask(__name__)
+    app.secret_key = str(os.urandom(16))
+
+    with app.app_context():
+        init_db()
+
+    return app
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -41,7 +50,8 @@ def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
 
-#db.row_factory = make_dicts
+db = LocalProxy( get_db)
+db.row_factory = make_dicts
 #db.row_factory = sqlite3.Row
 #r = sqlite3.Row
 
