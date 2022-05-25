@@ -73,6 +73,7 @@ def configure_runtime():
 
     #database = "openplc.db"
     #conn = create_connection(database)
+    cur = get_db().cursor()
     if not cur is None:
         try:
             print("Opening database")
