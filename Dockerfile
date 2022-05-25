@@ -25,4 +25,5 @@ WORKDIR /workdir
 
 RUN ./install2.sh custom
 
-ENTRYPOINT ["./start_openplc.sh"]
+ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["./start_openplc.sh"]

@@ -17,7 +17,7 @@ import flask_login
 import openplc
 import monitoring as monitor
 import pages
-#from flask import g
+from flask import g
 
 app = flask.Flask(__name__)
 app.secret_key = str(os.urandom(16))
@@ -42,8 +42,8 @@ def make_dicts(cursor, row):
                 for idx, value in enumerate(row))
 
 #db.row_factory = make_dicts
-db.row_factory = sqlite3.Row
-r = sqlite3.Row
+#db.row_factory = sqlite3.Row
+#r = sqlite3.Row
 
 
 def query_db(query, args=(), one=False):
