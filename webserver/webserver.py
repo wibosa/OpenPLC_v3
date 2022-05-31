@@ -19,9 +19,24 @@ import openplc
 import monitoring as monitor
 import pages
 
-from flask import Flask, request, g
-from werkzeug.local import LocalProxy
+from flask import Flask, request, g, render_template
+from flask_login import LoginManager
 
+from werkzeug.local import LocalProxy
+from config import Config
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
+from is_safe_url import is_safe_url
+
+class LoginForm(FlaskForm):
+    user_name  = StringField('UserName', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Sign In')
+
+class Config(object):
+    SECRET_KEY = 'my-secrete-key'
 
 def create_app():
     '''App creation from optional config and migrated database.'''
@@ -33,6 +48,8 @@ def create_app():
     app.secret_key = secret_key
     #with lapp.app_context():
     #    init_db()
+    app.config.from_object(Config)
+
     #app.config.from_object(config_class)
     #db.init_app(app)
     #migrate.init_app(app, db)
@@ -41,9 +58,13 @@ def create_app():
 
 app = create_app()
 
-# flask idiomatic database access
+# flask idiomatic app login
 
-#DATABASE = 'database.db'
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+# flask idiomatic database access
+#db = LocalProxy( get_db)
 DATABASE = 'openplc.db'
 def init_db():
     '''flask idiomatic database creation access UNUSED TODO '''
@@ -63,9 +84,9 @@ def get_db():
     def make_dicts(cursor, row):
         return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
-    #db.row_factory = make_dicts
+    db.row_factory = make_dicts
 
-    db.row_factory = sqlite3.Row
+    #db.row_factory = sqlite3.Row
     return db
 
 def query_db(query, args=(), one=False):
@@ -85,6 +106,9 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+@app.route('/user/<name>')
+def user(name):
+    return render_template('user.html', name=name)
 
 @app.route('/db')
 def dbindex():
@@ -118,10 +142,6 @@ def hello_world():
 
 
 
-#db = LocalProxy( get_db)
-
-login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
 
 openplc_runtime = openplc.runtime()
 
@@ -339,7 +359,8 @@ def draw_blank_page():
                 <div style="margin-left:320px; margin-right:70px">
                 <div style="w3-container">
                     <br>"""
-    return return_str
+    #return return_str
+    render_template('blank.html', user=user)
 
 def draw_compiling_page():
     return_str = draw_blank_page()
@@ -464,7 +485,8 @@ loading logs...
         }
     </script>
 </html>"""
-    return return_str
+    #return return_str
+    return render_template('blank.html', user=user, openplc_runtime=openplc_runtime)
 
 
 @login_manager.user_loader
@@ -534,52 +556,58 @@ def before_request():
 
 @app.route('/')
 def index():
-    if flask_login.current_user.is_authenticated:
-        return flask.redirect(flask.url_for('dashboard'))
-    else:
-        return flask.redirect(flask.url_for('login'))
-
+    user_info = {
+        'name':'User'
+    }
+    return render_template('index.html', user=user_info)
+    #if flask_login.current_user.is_authenticated:
+    #    return flask.redirect(flask.url_for('dashboard'))
+    #else:
+    #    return flask.redirect(flask.url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if flask.request.method == 'GET':
-        return pages.login_head + pages.login_body
+    # Here we use a class of some kind to represent and validate our
+    # client-side form data. For example, WTForms is a library that will
+    # handle this for us, and we use a custom LoginForm to validate.
+    form = LoginForm()
+    #if form.validate_on_submit():
+        # Login and validate the user.
+        # user should be an instance of your `User` class
+            #username="openplc"
+            #password="openplc"
+    if form.validate_on_submit():
+        for seluser in query_db('SELECT username, password, name, pict_file FROM Users'):
+           if seluser['username'] == form.user_name:
+                if seluser['password'] == form.password:
 
-    username = flask.request.form['username']
-    password = flask.request.form['password']
-
-    database = "openplc.db"
-    conn = create_connection(database)
-    if not conn is None:
-        try:
-            cur = conn.cursor()
-            cur.execute("SELECT username, password, name, pict_file FROM Users")
-            rows = cur.fetchall()
-            cur.close()
-            conn.close()
-
-            for row in rows:
-                if row[0] == username:
-                    if row[1] == password:
                         user = User()
-                        user.id = row[0]
-                        user.name = row[2]
-                        user.pict_file = str(row[3])
+                        user.id = seluser['username']
+                        user.name = seluser['name']
+                        user.pict_file = str(seluser['pict_file'])
+
                         flask_login.login_user(user)
-                        return flask.redirect(flask.url_for('dashboard'))
-                    else:
-                        return pages.login_head + pages.bad_login_body
+                        flask.flash('login DB successful')
+       
+        if form.user_name.data == 'admin' and form.password.data == 'admin':
+            user = User()
+            flask_login.login_user(user)
+            flask.flash('login successful')
+            #return redirect('index')
+            return flask.redirect(flask.url_for('dashboard'))
+    #return render_template('login.html', form=form)
 
-            return pages.login_head + pages.bad_login_body
+    #                    flask_login.login_user(user)
+    #                    flask.flash('Logged in successfully.')
+    #                    return flask.redirect(flask.url_for('dashboard'))
 
-        except Error as e:
-            print("error connecting to the database" + str(e))
-            return 'Error opening DB'
-    else:
-        return 'Error opening DB'
-
-    return pages.login_head + pages.bad_login_body
-
+        # next = flask.request.args.get('next')
+        # is_safe_url should check if the url is safe for redirects.
+        # See http://flask.pocoo.org/snippets/62/ for an example.
+        #if not is_safe_url(next,{"localhost"}):
+        #    return flask.abort(400)
+    #    return flask.redirect(flask.url_for('dashboard'))
+    return flask.render_template('login.html', form=form)       
 
 @app.route('/start_plc')
 def start_plc():
@@ -627,6 +655,9 @@ def dashboard():
         monitor.stop_monitor()
         if openplc_runtime.status() == "Compiling":
             return draw_compiling_page()
+        else:    
+            return render_template('openplc.html', title="dashboard", user="wim", openplc_runtime=openplc_runtime )  
+''' 
         return_str = pages.w3_style + pages.dashboard_head + draw_top_div()
         return_str += """
             <div class='main'>
@@ -665,7 +696,7 @@ def dashboard():
 
         return return_str
 
-
+ '''
 @app.route('/programs', methods=['GET', 'POST'])
 def programs():
     if not flask_login.current_user.is_authenticated:

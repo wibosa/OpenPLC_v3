@@ -13,10 +13,13 @@ python3 -m venv venv
 . venv/bin/activate
 #pip install --upgrade pip
 #pip install Flask
+#pip install flask-wtf
+pip install is-safe-url
 #pip install flask_login
 #pip install sqlite3
 #pip install pyserial
 #pip install pymodbus
+#pip install config
 
 cat << HERE > minmimalapp.py
 from flask import Flask

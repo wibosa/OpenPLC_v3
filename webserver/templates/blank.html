@@ -6,7 +6,21 @@
     <title>OpenPLC Blank</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 </head>
-<body>
+
+<body onload='loadData()'>
+	<h2 style="color:#093657">My Blog</h2>
+        <a href="/login">Login</a>
+        <hr>
+        {% with messages = get_flashed_messages()%}
+        {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li> {{message}}</li>
+        {% endfor %}
+    </ul>
+        {% endif %}
+        {% endwith %}
+{% block content %} 
 <div class='main'>
 	<div class='w3-sidebar w3-bar-block' style='width:250px; background-color:#3D3D3D'>
 	<br>
@@ -36,26 +50,12 @@ loading logs...
 		<br><br><center><a href='dashboard' id='dashboard_button' class='button' style='background-color: #EDEDED; pointer-events: none; width: 310px; height: 53px; margin: 0px 20px 0px 20px;'><b>Go to Dashboard</b></a></center>
 	</div>
 </div>
-</div>
-</body>
-"	
 
-<!-- + pages.dashboard_head + draw_top_div() -->
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OpenPLC Blank</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-</head>
-
-<body onload='loadData()'>
 	{{ user }} {{ openplc_runtime['project_name']}}
 	<div class='top'>"
 		"<img src='/static/openplc_logo.gif' alt='OpenPLC' style='width:111px;height:45px;padding:5px 0px 0px 10px;float:left'>")
-		<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: #02EE07'>Running: </span>{{openplc_runtime['project_name']}}</center></h3>
+		<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: #02EE07'>Running: </span>openplc_runtime}}</center></h3>
 <!--		if openplc_runtime.status() == "Running":
 			top_div += "<h3 style='font-family:\"Roboto\", sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px'><center><span style='color: #02EE07'>Running: </span>" + openplc_runtime.project_name + "</center></h3>"
 		elif openplc_runtime.status() == "Compiling":
@@ -100,6 +100,7 @@ loading logs...
 		</div>
 	</div>
 </div>
+{% endblock %}
 </body>
 
 <script>
