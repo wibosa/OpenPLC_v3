@@ -1,3 +1,4 @@
+'''This webserver module to serve  flask web database application.'''
 import os
 #from re import U
 import subprocess
@@ -21,47 +22,103 @@ import pages
 from flask import Flask, request, g
 from werkzeug.local import LocalProxy
 
-# flash idiomatic database access
-def init_db():
-    DATABASE = 'openplc.db'
 
 def create_app():
-    app = flask.Flask(__name__)
-    app.secret_key = str(os.urandom(16))
-
-    with app.app_context():
-        init_db()
-
+    '''App creation from optional config and migrated database.'''
+    app = Flask(__name__)
+   
+    # Set the secret key to some random bytes. Keep this really secret!
+    secret_key = b'_5#rw2L"F4Q8z\n\xec]/'
+    #secret_key = secrets.token_urlsafe(32)  # OR better with use import secrets
+    app.secret_key = secret_key
+    #with lapp.app_context():
+    #    init_db()
+    #app.config.from_object(config_class)
+    #db.init_app(app)
+    #migrate.init_app(app, db)
+    #... register blueprints, configure logging etc.
     return app
 
+app = create_app()
+
+# flask idiomatic database access
+
+#DATABASE = 'database.db'
+DATABASE = 'openplc.db'
+def init_db():
+    '''flask idiomatic database creation access UNUSED TODO '''
+    with app.app_context():
+        db = get_db()
+        with app.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
 def get_db():
+    '''Demonstrates triple double quotes
+    docstrings and does nothing really.'''
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
+
+    def make_dicts(cursor, row):
+        return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
+    #db.row_factory = make_dicts
+
+    db.row_factory = sqlite3.Row
     return db
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
-def make_dicts(cursor, row):
-    return dict((cursor.description[idx][0], value)
-                for idx, value in enumerate(row))
-
-db = LocalProxy( get_db)
-db.row_factory = make_dicts
-#db.row_factory = sqlite3.Row
-#r = sqlite3.Row
-
-
 def query_db(query, args=(), one=False):
+    '''Demonstrates triple double quotes
+    docstrings and does nothing really.'''
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
 
+
+@app.teardown_appcontext
+def close_connection(exception):
+    '''Demonstrates triple double quotes
+    docstrings and does nothing really.'''
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
+@app.route('/db')
+def dbindex():
+    '''Demonstrates triple double quotes
+    docstrings and does nothing really.'''
+    #cur = get_db().cursor()
+    for user in query_db('select * from users'):
+        print(user['user_name'], 'has the id', user['user_id'])
+    user = query_db('select * from users where user_name = ?',
+        (["adwim"]), one=True)
+    if user is None:
+        print('No such user')
+    else:
+        print(user['user_name'] , 'has the id', user['user_id'])
+    return '''
+<html>
+    <head>
+        <title>My Project - Microblog</title>
+    </head>
+    <body>
+        <h1>Hello, ''' + user['user_name'] + '''!</h1>
+    </body>
+</html>'''
+
+@app.route("/hello")
+def hello_world():
+    '''Demonstrates triple double quotes
+    docstrings and does nothing really.'''
+    return "<p>Hello, Changing  Live Server World!</p>"
+
+
+
+
+#db = LocalProxy( get_db)
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)

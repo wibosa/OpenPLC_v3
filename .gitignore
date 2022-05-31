@@ -12,6 +12,8 @@ CMakeSettings.json
 *.vs/
 
 # Build directories
+webserver/venv
 webserver/bin
 webserver/build
 obj/
+webserver/minmimalapp.py
