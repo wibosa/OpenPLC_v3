@@ -1,4 +1,5 @@
 '''This webserver module to serve  flask web database application.'''
+from collections import namedtuple
 import os
 #from re import U
 import subprocess
@@ -19,8 +20,15 @@ import openplc
 import monitoring as monitor
 import pages
 
-from flask import Flask, request, g, render_template
-from flask_login import LoginManager
+from flask import Flask, request, g, render_template, flash
+from flask_login import (
+    UserMixin,
+    login_user,
+    LoginManager,
+    current_user,
+    logout_user,
+    login_required,
+)
 
 from werkzeug.local import LocalProxy
 from config import Config
@@ -28,15 +36,56 @@ from config import Config
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
-from is_safe_url import is_safe_url
+#from is_safe_url import is_safe_url
+
+class User(UserMixin ):
+    """CREATE TABLE "Users" ( `user_id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `username` TEXT NOT NULL UNIQUE, `email` TEXT, `password` TEXT NOT NULL, `pict_file` TEXT )"""
+    __tablename = "user"
+    authenticated = False
+    def __init__(self, user_id,name, username, email, password, pict_file):
+        self.user_id = user_id
+        self.name = name
+        self.username =username
+        self.email = email
+        self.password = password
+        self.pict_file = pict_file
+        self.authenticated = False
+ 
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def set_authenticated(self):
+        self.authenticated = TRUE
+        return
+    
+    def reset_authenticated(self):
+        self.authenticated = FALSE
+        return
+
+    def is_active(self):
+        return True
+    def get_id(self):
+         return self.user_id
+
+    def __repr__(self):
+        return '<User %r>' % self.username
 
 class LoginForm(FlaskForm):
-    user_name  = StringField('UserName', validators=[DataRequired()])
+    username  = StringField('UserName', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Sign In')
 
 class Config(object):
     SECRET_KEY = 'my-secrete-key'
+# flask idiomatic app login
+
+login_manager = flask_login.LoginManager()
+login_manager.session_protection = "strong"
+login_manager.login_view="login"
+login_manager.login_message_category = "info"
 
 def create_app():
     '''App creation from optional config and migrated database.'''
@@ -49,6 +98,7 @@ def create_app():
     #with lapp.app_context():
     #    init_db()
     app.config.from_object(Config)
+    login_manager.init_app(app)
 
     #app.config.from_object(config_class)
     #db.init_app(app)
@@ -58,14 +108,12 @@ def create_app():
 
 app = create_app()
 
-# flask idiomatic app login
 
-login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
 
 # flask idiomatic database access
 #db = LocalProxy( get_db)
 DATABASE = 'openplc.db'
+
 def init_db():
     '''flask idiomatic database creation access UNUSED TODO '''
     with app.app_context():
@@ -116,20 +164,20 @@ def dbindex():
     docstrings and does nothing really.'''
     #cur = get_db().cursor()
     for user in query_db('select * from users'):
-        print(user['user_name'], 'has the id', user['user_id'])
-    user = query_db('select * from users where user_name = ?',
+        print(user['username'], 'has the id', user['user_id'])
+    user = query_db('select * from users where username = ?',
         (["adwim"]), one=True)
     if user is None:
         print('No such user')
     else:
-        print(user['user_name'] , 'has the id', user['user_id'])
+        print(user['username'] , 'has the id', user['user_id'])
     return '''
 <html>
     <head>
         <title>My Project - Microblog</title>
     </head>
     <body>
-        <h1>Hello, ''' + user['user_name'] + '''!</h1>
+        <h1>Hello, ''' + user['username'] + '''!</h1>
     </body>
 </html>'''
 
@@ -139,14 +187,7 @@ def hello_world():
     docstrings and does nothing really.'''
     return "<p>Hello, Changing  Live Server World!</p>"
 
-
-
-
-
 openplc_runtime = openplc.runtime()
-
-class User(flask_login.UserMixin):
-    pass
 
 def configure_runtime():
     global openplc_runtime
@@ -491,62 +532,25 @@ loading logs...
 
 @login_manager.user_loader
 def user_loader(username):
-    database = "openplc.db"
-    conn = create_connection(database)
-    if conn is not None:
-        try:
-            cur = conn.cursor()
-            cur.execute("SELECT username, password, name, pict_file FROM Users")
-            rows = cur.fetchall()
-            cur.close()
-            conn.close()
+    #for user in query_db('select * from users'):
+    #    print(user['username'], 'has the id', user['user_id'])
 
-            for row in rows:
-                if row[0] == username:
-                    user = User()
-                    user.id = row[0]
-                    user.name = row[2]
-                    user.pict_file = str(row[3])
-                    return user
-            return None
-
-        except Error as e:
-            print("error connecting to the database" + str(e))
-            return None
-    else:
+    user = query_db('select * from users where username = ?',
+       username, one=True)
+    if user is None:
+        print('No such user')
         return None
+    else:
+        print(user['username'] , 'has the id', user['user_id'])
+    return user 
 
 
 @login_manager.request_loader
 def request_loader(request):
     username = request.form.get('username')
-
-    database = "openplc.db"
-    conn = create_connection(database)
-    if not conn is None:
-        try:
-            cur = conn.cursor()
-            cur.execute("SELECT username, password, name, pict_file FROM Users")
-            rows = cur.fetchall()
-            cur.close()
-            conn.close()
-
-            for row in rows:
-                if row[0] == username:
-                    user = User()
-                    user.id = row[0]
-                    user.name = row[2]
-                    user.pict_file = str(row[3])
-                    user.is_authenticated = (request.form['password'] == row[1])
-                    return user
-            return None
-
-        except Error as e:
-            print(("error connecting to the database" + str(e)))
-            return None
-    else:
-        return None
-
+    user = query_db('select * from users where username = ?',
+       [(username)], one=True)
+    return user
 
 @app.before_request
 def before_request():
@@ -556,14 +560,12 @@ def before_request():
 
 @app.route('/')
 def index():
-    user_info = {
-        'name':'User'
-    }
-    return render_template('index.html', user=user_info)
-    #if flask_login.current_user.is_authenticated:
-    #    return flask.redirect(flask.url_for('dashboard'))
-    #else:
-    #    return flask.redirect(flask.url_for('login'))
+ 
+    if flask_login.current_user.is_authenticated:
+        return flask.redirect(flask.url_for('dashboard'))
+        #return render_template('openplc.html', user=user , openplc_runtime=openplc_runtime)
+    else:
+        return flask.redirect(flask.url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -578,18 +580,19 @@ def login():
             #password="openplc"
     if form.validate_on_submit():
         for seluser in query_db('SELECT username, password, name, pict_file FROM Users'):
-           if seluser['username'] == form.user_name:
+           if seluser['username'] == form.username:
                 if seluser['password'] == form.password:
 
                         user = User()
-                        user.id = seluser['username']
+                        user.username = seluser['username']
                         user.name = seluser['name']
                         user.pict_file = str(seluser['pict_file'])
 
                         flask_login.login_user(user)
                         flask.flash('login DB successful')
+                        return flask.redirect(flask.url_for('dashboard'))
        
-        if form.user_name.data == 'admin' and form.password.data == 'admin':
+        if form.username.data == 'admin' and form.password.data == 'admin':
             user = User()
             flask_login.login_user(user)
             flask.flash('login successful')

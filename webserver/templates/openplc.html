@@ -3,24 +3,33 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OpenPLC {{ title }}</title>
+    {% block head %}
+    <title>{% block title %}OpenPLC {{ title }}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% endblock %}
 </head>
 <body>
-    <div id="container">
 
-
-        <!-- Jinja directives: page contents will go between them -->
-        {% block content %}
-
-            {{ user }}
-
-            {{ openplc_runtime}}
-
-        {% endblock %}
-        
-      
-      </div> 
-
-
+    <div class='main'>
+ 
+    </div>
 </body>
+</html>
+
+<div class='top'>
+    <img src='/static/openplc_logo.gif' alt='OpenPLC' style='width:101px;height:40px;padding:5px 0px 0px 10px;float:left'>
+    <h3 style=\"font-family:'Roboto', sans-serif; font-size:18px; color:white; padding:13px 111px 0px 0px; margin: 0px 0px 0px 0px\"><center>OpenPLC Webserver</center></h3>
+</div>
+
+<div class='main' id="content">
+          {% block content %} <!-- Jinja directives: page contents will go between them -->
+          {% endblock %}
+      </div>
+<div id="footer">
+       {% block footer %}
+          &copy; Copyright 2022 by <a href="http://domain.invalid/">openPLC</a>.
+       {% endblock %}
+</div>
+</body>
+</html>

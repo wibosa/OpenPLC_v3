@@ -1,14 +1,26 @@
-{% extends "blank.html" %}
+{% extends "openplc.html" %}
 {% block content %}
-<h1> Sign In</h1>
-<form action="", method="post">
-    {{ form.hidden_tag() }}
-    <p>{{form.user_name.label}}<br>
-    {{form.user_name(size=32)}}<br>
-    </p>
-    <p>{{form.password.label}}<br>
-    {{form.password(size=32)}}<br>
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
+
+<div class='login-page'>
+    <div class='form'>
+      <form action='login' method='POST' class='login-form'>
+          <h3 style=\"font-family:'Roboto', sans-serif; font-size:24px; color:#1F1F1F; padding:0px 0px 0px 0px; margin: 0px 0px 40px 0px\"><center><b>Welcome to OpenPLC</b></center></h3>"""
+          <h3 style=\"font-family:'Roboto', sans-serif; font-size:14px; color:#1F1F1F; padding:0px 0px 0px 0px; margin: 0px 0px 40px 0px\"><center>Use your credentials to login</center></h3>
+          <input type='text' name='username' id='username' placeholder='username'/>
+          <input type='password' name='password' id='password' placeholder='password'/>
+         
+          <br><br><br>
+          <button>login</button>
+          {{ form.hidden_tag() }}
+          <p>{{form.username.label}}<br>
+          {{form.username(size=32)}}<br>
+          </p>
+          <p>{{form.password.label}}<br>
+          {{form.password(size=32)}}<br>
+          </p>
+          <p>{{ form.submit() }}</p>
+      </form>
+    </div>
+  </div>
+  
 {% endblock %}
