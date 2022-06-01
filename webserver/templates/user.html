@@ -14,7 +14,11 @@
 
     <p>Change the name in the <em>browser address bar</em>
         and reload the page.</p>
-
+        <ul>
+            {% for user in users %}
+                <li><a href="{{ url_for( 'detail', num=user[0] ) }}">{{ user[1] }}</a></li>
+            {% endfor %}
+            </ul>
 </div>
 
 </body>
